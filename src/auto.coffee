@@ -1,34 +1,41 @@
-class SelectModel
+class Observable
   constructor: (@attrs) ->
     @_callbacks = {}
 
   on: (event_name, cb) ->
     @_callbacks[event_name] = cb
 
+  cl: (event_name, args)->
+    @_callbacks[event_name].call(null, args)
+
+class SelectModel extends Observable
   filter: (term) ->
-    @_callbacks['filtered'].call(null, [term])
+    @cl('filtered',[term])
 
   selection: (value)->
     @selection = value
-    @_callbacks['selected'].call(null, value)
+    @cl('selected', value)
 
-data = ['one','two','three']
+class SelectView
+  constructor: (@node) ->
+  render: (items)->
+    res = $.map items, (i)-> "<li>#{i}</li>"
+    @node.html(res.join(''))
 
-sm = new SelectModel(data: data)
-
-sm.on 'filtered', (items)->
-  res = $.map items, (i)-> "<li>#{i}</li>"
-  $('#result').html(res.join(''))
-
-sm.on 'selected', (value)->
-  $('#selection').html(value)
-
-
-sm.filter('term')
 
 jQuery ->
-  $('.autocomplete').keyup ->
-    sm.filter($(@).val())
-  $('.autocomplete').blur ->
-    sm.selection($(@).val())
+  data = ['one','two','three']
+  model = new SelectModel(data: data)
+  view = new SelectView($('#result'))
 
+  model.on 'filtered', (items)->
+    view.render(items)
+
+  model.on 'selected', (value)->
+    $('#selection').html(value)
+
+  $('#autocomplete').keyup ->
+    model.filter($(@).val())
+
+  $('#autocomplete').blur ->
+    model.selection($(@).val())
