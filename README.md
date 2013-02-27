@@ -3,6 +3,13 @@ Selectus
 
 Refactor ivanberg select2 to more maintainable one
 
+Build
+=================
+
+coffee -o lib/ -cw src/ & coffee -o spec/ -cw spec/src
+
+open spec/SpecRunner.html in browser
+
 
 Copyright and License
 ---------------------
